@@ -4,9 +4,8 @@
 """
 
 import torch
-from transformers import BertForSequenceClassification, BertTokenizer, DataCollatorWithPadding
+from transformers import BertForSequenceClassification, Trainer, BertTokenizer, DataCollatorWithPadding
 from datasets import load_dataset
-from model import MixupTrainer
 from utils import tokenize_function, compute_metrics
 from config import training_args, num_labels, alpha, beta
 import argparse
@@ -32,7 +31,7 @@ def inference_model(model_dir, dataset_type, alpha=alpha, beta=beta):
     model = BertForSequenceClassification.from_pretrained(model_dir, num_labels=num_labels)
     model.to(device)
 
-    trainer = MixupTrainer(
+    trainer = Trainer(
         model=model,
         args=training_args,
         train_dataset=tokenized_datasets["train"],
@@ -40,8 +39,6 @@ def inference_model(model_dir, dataset_type, alpha=alpha, beta=beta):
         tokenizer=tokenizer,
         data_collator=data_collator,
         compute_metrics=compute_metrics,
-        alpha=alpha,
-        beta=beta
     )
 
     results = trainer.evaluate()
